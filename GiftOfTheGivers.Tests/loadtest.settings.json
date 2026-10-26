@@ -1,0 +1,14 @@
+{
+  "VirtualUsers": 5,
+  "DurationSeconds": 30,
+  "ThinkTimeMilliseconds": 500,
+  "MaxAverageResponseMs": 1000,
+  "MaxP95ResponseMs": 2000,
+  "MaxErrorRatePercent": 1,
+  "Scenarios": [
+    { "Name": "Home page",        "Target": "Web",      "Path": "/" },
+    { "Name": "About page",       "Target": "Web",      "Path": "/About" },
+    { "Name": "Donate form",      "Target": "Web",      "Path": "/Donate/Index" },
+    { "Name": "Tax certificate",  "Target": "Function", "Path": "?amount=100&currency=ZAR&type=OneTime&donorName=Load%20Test%20User" }
+  ]
+}

@@ -1,0 +1,92 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<!-- Hero Section with background image -->
+<div class="page-header text-center position-relative overflow-hidden">
+    <!-- Background image -->
+    <img src="~/images/hero.jpg"
+         class="position-absolute top-0 start-0 w-100 h-100"
+         style="object-fit: cover; opacity: 0.28;"
+         alt=""
+         onerror="this.src='https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1600&q=80'; this.onerror=null;">
+
+    <div class="container position-relative" style="z-index: 2;">
+        <h1 class="display-5 fw-bold mb-3 text-white">Gift of the Givers</h1>
+        <p class="lead mb-4 text-white">Standing with communities when disaster strikes</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a asp-page="/Donate/Index" class="btn btn-primary btn-lg px-4">
+                <i class="bi bi-heart-fill me-2"></i>Donate Now
+            </a>
+            <a asp-page="/Volunteer/Index" class="btn btn-outline-light btn-lg px-4">
+                <i class="bi bi-people-fill me-2"></i>Volunteer
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container py-5">
+
+    <!-- Feature cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 text-center p-4">
+                <div class="feature-icon mb-3">
+                    <i class="bi bi-box-seam fs-1 text-warning"></i>
+                </div>
+                <h3 class="h5">Emergency Relief</h3>
+                <p class="small text-muted mb-0">
+                    Rapid delivery of food, water, medical supplies and shelter when communities need it most.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center p-4">
+                <div class="feature-icon mb-3">
+                    <i class="bi bi-heart-pulse fs-1 text-warning"></i>
+                </div>
+                <h3 class="h5">Medical Support</h3>
+                <p class="small text-muted mb-0">
+                    Field clinics, medical teams and essential medicines for affected populations.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center p-4">
+                <div class="feature-icon mb-3">
+                    <i class="bi bi-people fs-1 text-warning"></i>
+                </div>
+                <h3 class="h5">Community Recovery</h3>
+                <p class="small text-muted mb-0">
+                    Longer-term support that helps families and communities rebuild with dignity.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image + text section -->
+    <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+            <img src="~/images/relief.jpg"
+                 class="img-fluid rounded-3 shadow"
+                 alt="Relief teams delivering aid"
+                 onerror="this.src='https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=900&q=80'; this.onerror=null;">
+        </div>
+        <div class="col-lg-6">
+            <h2 class="h3 fw-bold mb-3">Why we exist</h2>
+            <p>
+                Gift of the Givers moves quickly when disaster strikes. We deliver practical help —
+                food parcels, clean water, medical care and temporary shelter — to communities
+                facing floods, drought, conflict and other emergencies.
+            </p>
+            <p class="mb-4">
+                Your support allows us to respond faster and reach more people in need.
+            </p>
+            <a asp-page="/About" class="btn btn-outline-primary">
+                Learn more about us
+            </a>
+        </div>
+    </div>

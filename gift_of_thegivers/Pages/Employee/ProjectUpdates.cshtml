@@ -1,0 +1,78 @@
+﻿@page
+@model gift_of_thegivers.Pages.Employee.ProjectUpdatesModel
+@{
+}
+<div class="page-header text-center">
+    <div class="container">
+        <h1 class="h2 fw-bold mb-2">Relief Project Updates</h1>
+        <p class="mb-0 opacity-75">Post and view current project information</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row g-4">
+
+        <!-- Post new update -->
+        <div class="col-lg-5">
+            <div class="card p-4">
+                <h3 class="h5 mb-3">Post New Update</h3>
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-semibold">Project / Title</label>
+                        <input asp-for="Title" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Location" class="form-label fw-semibold">Location</label>
+                        <input asp-for="Location" class="form-control" placeholder="e.g. KwaZulu-Natal floods">
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Details" class="form-label fw-semibold">Update Details</label>
+                        <textarea asp-for="Details" class="form-control" rows="5" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        Publish Update
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- List of updates -->
+        <div class="col-lg-7">
+            <div class="card p-4">
+                <h3 class="h5 mb-3">Recent Updates</h3>
+
+                @if (Model.Updates == null || !Model.Updates.Any())
+                {
+                    <p class="text-muted small mb-0">No updates posted yet.</p>
+                }
+                else
+                {
+                    @foreach (var item in Model.Updates)
+                    {
+                        <div class="border-bottom pb-3 mb-3">
+                            <h4 class="h6 mb-1">@item.Title</h4>
+                            <p class="small text-muted mb-1">
+                                <i class="bi bi-geo-alt me-1"></i>@item.Location
+                                &nbsp;•&nbsp;
+                                @item.PostedOn.ToString("dd MMM yyyy HH:mm")
+                            </p>
+                            <p class="mb-0 small">@item.Details</p>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mt-4">
+        <a asp-page="/Employee/Dashboard" class="btn btn-outline-primary btn-sm">
+            ← Back to Dashboard
+        </a>
+    </div>
+</div>
+

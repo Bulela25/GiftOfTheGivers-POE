@@ -1,0 +1,223 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Gift of the Givers</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0b3d5c;
+            --accent: #e67e22;
+            --light-bg: #f7f9fc;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background-color: var(--primary) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .navbar-brand img {
+                height: 42px;
+                width: auto;
+            }
+
+        .nav-link {
+            font-weight: 500;
+            padding: 0.55rem 1rem !important;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #0b3d5c 0%, #1a5f8a 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2.5rem;
+            border-radius: 0 0 16px 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .page-header img.hero-bg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                opacity: 0.25;
+            }
+
+            .page-header .content {
+                position: relative;
+                z-index: 2;
+            }
+
+        .card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            font-weight: 600;
+            padding: 0.65rem 1.5rem;
+            border-radius: 8px;
+        }
+
+            .btn-primary:hover {
+                background-color: #d35400;
+                border-color: #d35400;
+            }
+
+        .btn-outline-primary {
+            color: var(--primary);
+            border-color: var(--primary);
+            font-weight: 500;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 0.7rem 1rem;
+            border: 1px solid #d1d9e6;
+        }
+
+        footer {
+            background-color: #0b3d5c;
+            color: #c8d6e5;
+            padding: 2.5rem 0;
+            margin-top: 5rem;
+        }
+
+            footer a {
+                color: #c8d6e5;
+                text-decoration: none;
+            }
+
+                footer a:hover {
+                    color: white;
+                }
+
+        .feature-icon {
+            font-size: 2.2rem;
+            color: var(--accent);
+            margin-bottom: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" asp-page="/Index">
+                <img src="~/images/logo.png" alt="Gift of the Givers"
+                     onerror="this.style.display='none'">
+                Gift of the Givers
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" asp-page="/Index">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-page="/About">About</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-page="/Donate/Index">Donate</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-page="/Volunteer/Index">Volunteer</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-page="/Contact">Contact</a></li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    @if (!string.IsNullOrEmpty(Context.Session.GetString("UserEmail")))
+                    {
+                        <li class="nav-item">
+                            <span class="nav-link">
+                                Hello, @Context.Session.GetString("UserName")
+                            </span>
+                        </li>
+
+                        @* Show Staff Area only for Employees *@
+                        @if (Context.Session.GetString("UserRole") == "Employee")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/Employee/Dashboard">
+                                    <i class="bi bi-speedometer2 me-1"></i> Staff Area
+                                </a>
+                            </li>
+                        }
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Account/Logout">Logout</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Account/Login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Account/Register">Register</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="text-white mb-2">Gift of the Givers</h5>
+                    <p class="mb-1 small">Disaster response • Relief • Recovery</p>
+                    <p class="small mb-0 opacity-75">Registered Non-Profit Organisation</p>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <p class="mb-1">
+                        <a href="mailto:info@giftofthegivers.org">
+                            <i class="bi bi-envelope me-1"></i> info@giftofthegivers.org
+                        </a>
+                    </p>
+                    <p class="mb-0 small">&copy; @DateTime.Now.Year Gift of the Givers Foundation</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

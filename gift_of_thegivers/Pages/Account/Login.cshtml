@@ -1,0 +1,48 @@
+﻿@page
+@model gift_of_thegivers.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+<div class="page-header text-center">
+    <div class="container">
+        <h1 class="h2 fw-bold mb-2">Login</h1>
+        <p class="mb-0 opacity-75">Access your account</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="card p-4 p-md-5">
+                <form method="post">
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold">Email</label>
+                        <input asp-for="Email" type="email" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold">Password</label>
+                        <input asp-for="Password" type="password" class="form-control" required>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input class="form-check-input" asp-for="RememberMe" type="checkbox" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        Sign in
+                    </button>
+                </form>
+
+                <p class="text-center mb-0 small">
+                    Don’t have an account?
+                    <a asp-page="/Account/Register" class="fw-semibold">Register here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+

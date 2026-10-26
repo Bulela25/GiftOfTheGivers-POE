@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "givers_function": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7234",
+      "launchBrowser": false
+    }
+  }
+}

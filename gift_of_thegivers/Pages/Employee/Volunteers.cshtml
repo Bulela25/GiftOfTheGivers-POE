@@ -1,0 +1,51 @@
+﻿@page
+@model gift_of_thegivers.Pages.Employee.VolunteersModel
+@{
+}
+<div class="page-header text-center">
+    <div class="container">
+        <h1 class="h2 fw-bold mb-2">Volunteer Sign-ups</h1>
+        <p class="mb-0 opacity-75">People who have registered interest</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="card p-4">
+        @if (Model.Volunteers == null || !Model.Volunteers.Any())
+        {
+            <p class="text-muted mb-0">No volunteer registrations yet.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Skills / Experience</th>
+                            <th>Availability</th>
+                            <th>Submitted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in Model.Volunteers)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@v.FullName</td>
+                                <td>@v.Skills</td>
+                                <td>@v.Availability</td>
+                                <td class="small text-muted">@v.SubmittedOn.ToString("dd MMM yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="mt-4">
+        <a asp-page="/Employee/Dashboard" class="btn btn-outline-primary btn-sm">
+            ← Back to Dashboard
+        </a>
+    </div>
+</div>
