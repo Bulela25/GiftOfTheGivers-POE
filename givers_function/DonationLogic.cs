@@ -1,7 +1,9 @@
+//Trigger CI run
 using System.Globalization;
 
 namespace givers_function
 {
+    
     /// <summary>
     /// Pure donation rules, kept separate from the Azure Function so they can be unit tested
     /// without a web server or a database.
