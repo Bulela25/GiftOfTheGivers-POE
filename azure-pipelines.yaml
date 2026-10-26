@@ -1,0 +1,46 @@
+# Gift of the Givers - CI pipeline (Section B)
+# Builds the solution and runs the unit tests automatically on every commit, on any branch.
+# Integration, Load and UI tests are excluded: they need LocalDB, a running site and Chrome,
+# which the hosted build agent does not have.
+
+trigger:
+  branches:
+    include:
+      - '*'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  solution: 'gift_of_thegivers/gift_of_thegivers.sln'
+  testProject: 'GiftOfTheGivers.Tests/GiftOfTheGivers.Tests.csproj'
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET 8 SDK'
+    inputs:
+      packageType: 'sdk'
+      version: '8.x'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore NuGet packages'
+    inputs:
+      command: 'restore'
+      projects: '$(solution)'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build solution'
+    inputs:
+      command: 'build'
+      projects: '$(solution)'
+      arguments: '--configuration $(buildConfiguration) --no-restore'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Run unit tests'
+    inputs:
+      command: 'test'
+      projects: '$(testProject)'
+      arguments: '--configuration $(buildConfiguration) --no-build --filter "Category=Unit" --logger "console;verbosity=detailed"'
+      publishTestResults: true
+      testRunTitle: 'Gift of the Givers - Unit Tests'
