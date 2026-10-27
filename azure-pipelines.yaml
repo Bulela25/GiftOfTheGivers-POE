@@ -41,6 +41,17 @@ steps:
     inputs:
       command: 'test'
       projects: '$(testProject)'
-      arguments: '--configuration $(buildConfiguration) --no-build --filter "Category=Unit" --logger "console;verbosity=detailed"'
-      publishTestResults: true
-      testRunTitle: 'Gift of the Givers - Unit Tests'
+      arguments: '--configuration $(buildConfiguration) --no-build --filter "Category=Unit" --logger "trx;LogFileName=testResults.trx"'
+      # Note: I changed the logger to "trx" so the next task can find the file.
+      publishTestResults: false # We turn this off because we are using the explicit task below.
+
+  # --- THIS IS WHAT YOU NEED TO ADD FOR B.1 ---
+  - task: PublishTestResults@2
+    displayName: 'Publish Unit Test Results'
+    condition: succeededOrFailed() # Ensures this runs even if a test fails
+    inputs:
+      testResultsFormat: 'VSTest'
+      testResultsFiles: '**/testResults.trx'
+      searchFolder: '$(Agent.WorkFolder)'
+      mergeTestResults: true
+      testRunTitle: 'Gift of the Givers - Automated Tests'
