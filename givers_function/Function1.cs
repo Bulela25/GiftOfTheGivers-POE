@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using BCrypt.Net;
 
 namespace givers_function
@@ -14,7 +14,7 @@ namespace givers_function
         // Can be overridden with the GOTG_SQL environment variable (used by the tests and on Azure).
         public static string ConnectionString =>
             Environment.GetEnvironmentVariable("GOTG_SQL")
-            ?? @"Server=(localdb)\ngo;Database=gift_of_thegivers;Trusted_Connection=True;";
+            ?? @"Server=(localdb)\ngo;Database=gift_of_thegivers;Trusted_Connection=True;TrustServerCertificate=True;";
 
         public Function1(ILogger<Function1> logger)
         {

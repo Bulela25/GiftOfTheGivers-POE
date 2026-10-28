@@ -1,46 +1,189 @@
-# Gift of the Givers - CI pipeline (Section B)
-# Builds the solution and runs the unit tests automatically on every commit, on any branch.
-# Integration, Load and UI tests are excluded: they need LocalDB, a running site and Chrome,
-# which the hosted build agent does not have.
+# =====================================================================
+# Gift of the Givers - CI/CD pipeline
+#
+# Stage 1 (Section B): build + unit tests on every commit, on any branch.
+# Stage 2 (Section C): on master only, after the tests pass:
+#   C.2  deploy the Azure Functions project to the Function App
+#   C.3  apply the SQL schema updates to Azure SQL Database
+#   C.1  deploy the ASP.NET Core website to Azure App Service and check it is live
+#
+# Deployment uses each app's publishing credentials (zip deploy), so no
+# Azure service connection is needed. The website and function log in to
+# Azure SQL with their managed identity (no database password).
+#
+# Secret variables (Azure DevOps > Pipeline > Edit > Variables, tick "Keep this value secret"):
+#   webDeployUser, webDeployPassword    - from the website's publish profile (userName, userPWD)
+#   funcDeployUser, funcDeployPassword  - from the Function App's publish profile (userName, userPWD)
+#   functionKey                         - Function App > App keys > default
+# =====================================================================
 
 trigger:
   branches:
     include:
       - '*'
 
-pool:
-  vmImage: 'ubuntu-latest'
-
 variables:
   buildConfiguration: 'Release'
   solution: 'gift_of_thegivers/gift_of_thegivers.sln'
   testProject: 'GiftOfTheGivers.Tests/GiftOfTheGivers.Tests.csproj'
 
-steps:
-  - task: UseDotNet@2
-    displayName: 'Install .NET 8 SDK'
-    inputs:
-      packageType: 'sdk'
-      version: '8.x'
+  # ---- Azure addresses ("Default domain" on each app's Overview page) ----
+  webHost: 'giftofthegivers20260916211758-h8h6heatb6atcxd9.canadacentral-01.azurewebsites.net'
+  functionHost: 'giversfunction20260925190342-e6eqg8ane8fua2g0.southafricanorth-01.azurewebsites.net'
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Restore NuGet packages'
-    inputs:
-      command: 'restore'
-      projects: '$(solution)'
+stages:
+  # ---------------------------------------------------------------
+  # STAGE 1: Build and test (Section B)
+  # ---------------------------------------------------------------
+  - stage: BuildAndTest
+    displayName: 'Build and unit test'
+    pool:
+      vmImage: 'ubuntu-latest'
+    jobs:
+      - job: Build
+        displayName: 'Build, test and package'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Install .NET 8 SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '8.x'
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Build solution'
-    inputs:
-      command: 'build'
-      projects: '$(solution)'
-      arguments: '--configuration $(buildConfiguration) --no-restore'
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore NuGet packages'
+            inputs:
+              command: 'restore'
+              projects: '$(solution)'
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Run unit tests'
-    inputs:
-      command: 'test'
-      projects: '$(testProject)'
-      arguments: '--configuration $(buildConfiguration) --no-build --filter "Category=Unit" --logger "console;verbosity=detailed"'
-      publishTestResults: true
-      testRunTitle: 'Gift of the Givers - Unit Tests'
+          - task: DotNetCoreCLI@2
+            displayName: 'Build solution'
+            inputs:
+              command: 'build'
+              projects: '$(solution)'
+              arguments: '--configuration $(buildConfiguration) --no-restore'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Run unit tests'
+            inputs:
+              command: 'test'
+              projects: '$(testProject)'
+              arguments: '--configuration $(buildConfiguration) --no-build --filter "Category=Unit" --logger "console;verbosity=detailed"'
+              publishTestResults: true
+              testRunTitle: 'Gift of the Givers - Unit Tests'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish website package'
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              projects: 'gift_of_thegivers/gift_of_thegivers.csproj'
+              arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/web'
+              zipAfterPublish: true
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish Azure Function package'
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              projects: 'givers_function/givers_function.csproj'
+              arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/function'
+              zipAfterPublish: true
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish build artifacts'
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifact: 'drop'
+
+  # ---------------------------------------------------------------
+  # STAGE 2: Deploy to Azure (Section C) - master branch only
+  # ---------------------------------------------------------------
+  - stage: Deploy
+    displayName: 'Deploy to Azure'
+    dependsOn: BuildAndTest
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    pool:
+      vmImage: 'ubuntu-latest'
+    jobs:
+      - job: DeployAll
+        displayName: 'Deploy function, database and website'
+        steps:
+          - checkout: self
+
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download build artifacts'
+            inputs:
+              artifact: 'drop'
+              path: '$(Pipeline.Workspace)/drop'
+
+          # ---------- C.2 Azure Functions ----------
+          - bash: |
+              set -euo pipefail
+              ZIP=$(ls "$(Pipeline.Workspace)"/drop/function/*.zip | head -n 1)
+              SCM="${APP_HOST%%.*}.scm.${APP_HOST#*.}"
+              echo "Deploying $ZIP"
+              echo "to https://$SCM ..."
+              curl --fail-with-body -sS --max-time 900 -X POST \
+                   -u "$DEPLOY_USER:$DEPLOY_PASS" \
+                   --data-binary @"$ZIP" \
+                   "https://$SCM/api/zipdeploy?isAsync=false"
+              echo
+              echo "Azure Function deployed: https://$APP_HOST"
+            displayName: 'C.2 Deploy Azure Function'
+            env:
+              APP_HOST: $(functionHost)
+              DEPLOY_USER: $(funcDeployUser)
+              DEPLOY_PASS: $(funcDeployPassword)
+
+          # ---------- C.3 Azure SQL schema ----------
+          - bash: |
+              set -uo pipefail
+              URL="https://$APP_HOST/api/ApplySchema"
+              for i in 1 2 3 4 5 6 7 8 9 10; do
+                echo "Attempt $i: POST $URL"
+                CODE=$(curl -sS -o response.txt -w '%{http_code}' --max-time 180 -X POST "$URL?code=$FUNC_KEY") || CODE=000
+                cat response.txt 2>/dev/null || true
+                echo
+                if [ "$CODE" = "200" ]; then
+                  echo "Schema updates applied to Azure SQL."
+                  exit 0
+                fi
+                echo "HTTP $CODE - waiting for the function to finish starting..."
+                sleep 20
+              done
+              echo "##vso[task.logissue type=error]Schema update failed"
+              exit 1
+            displayName: 'C.3 Apply schema updates to Azure SQL'
+            env:
+              APP_HOST: $(functionHost)
+              FUNC_KEY: $(functionKey)
+
+          # ---------- C.1 App Service ----------
+          - bash: |
+              set -euo pipefail
+              ZIP=$(ls "$(Pipeline.Workspace)"/drop/web/*.zip | head -n 1)
+              SCM="${APP_HOST%%.*}.scm.${APP_HOST#*.}"
+              echo "Deploying $ZIP"
+              echo "to https://$SCM ..."
+              curl --fail-with-body -sS --max-time 900 -X POST \
+                   -u "$DEPLOY_USER:$DEPLOY_PASS" \
+                   --data-binary @"$ZIP" \
+                   "https://$SCM/api/zipdeploy?isAsync=false"
+              echo
+              echo "Checking the live site https://$APP_HOST ..."
+              for i in 1 2 3 4 5 6 7 8 9 10; do
+                CODE=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 60 "https://$APP_HOST/") || CODE=000
+                echo "Attempt $i: HTTP $CODE"
+                if [ "$CODE" = "200" ]; then
+                  echo "Live site is up: https://$APP_HOST"
+                  exit 0
+                fi
+                sleep 15
+              done
+              echo "##vso[task.logissue type=error]Website did not respond with HTTP 200"
+              exit 1
+            displayName: 'C.1 Deploy website to App Service'
+            env:
+              APP_HOST: $(webHost)
+              DEPLOY_USER: $(webDeployUser)
+              DEPLOY_PASS: $(webDeployPassword)

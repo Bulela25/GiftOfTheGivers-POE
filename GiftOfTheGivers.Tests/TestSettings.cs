@@ -1,4 +1,4 @@
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace GiftOfTheGivers.Tests
 {
@@ -10,7 +10,7 @@ namespace GiftOfTheGivers.Tests
     {
         public static string SqlConnectionString =>
             Environment.GetEnvironmentVariable("GOTG_SQL")
-            ?? @"Server=(localdb)\ngo;Database=gift_of_thegivers;Trusted_Connection=True;";
+            ?? @"Server=(localdb)\ngo;Database=gift_of_thegivers;Trusted_Connection=True;TrustServerCertificate=True;";
 
         // Website ("http" profile in gift_of_thegivers/Properties/launchSettings.json)
         public static string WebBaseUrl =>

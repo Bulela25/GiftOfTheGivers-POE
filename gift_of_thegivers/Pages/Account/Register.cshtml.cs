@@ -44,11 +44,11 @@ namespace gift_of_thegivers.Pages.Account
             {
                 using HttpClient client = new HttpClient();
 
-                string url = "http://localhost:7234/api/Function1" +
-                             $"?username={Uri.EscapeDataString(FullName)}" +
+                string url = AppConfig.BuildFunctionUrl(
+                             $"username={Uri.EscapeDataString(FullName)}" +
                              $"&email={Uri.EscapeDataString(Email)}" +
                              $"&password={Uri.EscapeDataString(Password)}" +
-                             $"&role={Uri.EscapeDataString(Role)}";
+                             $"&role={Uri.EscapeDataString(Role)}");
 
                 HttpResponseMessage response = await client.GetAsync(url);
                 string result = await response.Content.ReadAsStringAsync();

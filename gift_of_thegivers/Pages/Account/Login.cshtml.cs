@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using BCrypt;
 
 namespace gift_of_thegivers.Pages.Account
@@ -28,7 +28,7 @@ namespace gift_of_thegivers.Pages.Account
                 return Page();
             }
 
-            string connectionString = @"Server=(localdb)\ngo;Database=gift_of_thegivers;Trusted_Connection=True;";
+            string connectionString = AppConfig.SqlConnectionString;
 
             try
             {

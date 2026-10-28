@@ -35,11 +35,11 @@ namespace gift_of_thegivers.Pages.Donate
                     : (HttpContext.Session.GetString("UserName") ?? "Guest");
 
                 // Call the Azure Function (Function1)
-                string url = "http://localhost:7234/api/Function1" +
-                             $"?donorName={Uri.EscapeDataString(donorName)}" +
+                string url = AppConfig.BuildFunctionUrl(
+                             $"donorName={Uri.EscapeDataString(donorName)}" +
                              $"&amount={Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)}" +
                              $"&currency={Uri.EscapeDataString(Currency)}" +
-                             $"&type={Uri.EscapeDataString(DonationType)}";
+                             $"&type={Uri.EscapeDataString(DonationType)}");
 
                 string certificate = await client.GetStringAsync(url);
 
